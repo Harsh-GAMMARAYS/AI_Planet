@@ -1,0 +1,28 @@
+[project]
+name = "ai-workflow-backend"
+version = "0.1.0"
+description = "FastAPI backend for AI Planet Internship assignment"
+authors = [
+  { name = "Harshit", email = "your@email.com" }
+]
+requires-python = ">=3.10"
+
+dependencies = [
+  "fastapi",
+  "uvicorn[standard]",
+  "psycopg2-binary",
+  "sqlalchemy",
+  "alembic",
+  "chromadb",
+  "pydantic",
+  "python-multipart",
+  "pymupdf",
+  "openai",
+  "google-generativeai",
+  "requests",
+  "serpapi",
+  "python-dotenv>=1.1.1",
+  "sentence-transformers>=5.1.0",
+  "httpx>=0.28.1",
+]
+
