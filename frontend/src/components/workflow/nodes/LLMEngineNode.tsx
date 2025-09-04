@@ -22,27 +22,141 @@ interface LLMEngineNodeProps {
 export const LLMEngineNode: React.FC<LLMEngineNodeProps> = ({ data, id, selected }) => {
   const nodeConfigs = data.nodeConfigs || {};
   const nodeConfig = nodeConfigs[id] || {};
-  const [model, setModel] = useState(data.model || 'Gemini 2.0 Flash (Free)');
-  const [apiKey, setApiKey] = useState(data.apiKey || '');
-  const [prompt, setPrompt] = useState(nodeConfig.prompt || data.prompt || 'You are a helpful AI assistant. Use the context provided to answer the user\'s query accurately and comprehensively.');
-  const [temperature, setTemperature] = useState(data.temperature || 0.75);
-  const [webSearchEnabled, setWebSearchEnabled] = useState<boolean>(data.webSearchEnabled || true);
-  // const [serpApiKey] = useState(data.serpApiKey || '');
+  
+  // Initialize state from config or defaults
+  const initialModel = nodeConfig.model || data.model || 'Gemini 2.0 Flash (Free)';
+  const initialApiKey = nodeConfig.apiKey || data.apiKey || '';
+  const initialPrompt = nodeConfig.prompt || data.prompt || 'You are a helpful AI assistant. Use the context provided to answer the user\'s query accurately and comprehensively.';
+  const initialTemperature = nodeConfig.temperature || data.temperature || 0.75;
+  const initialWebSearchEnabled = nodeConfig.webSearchEnabled !== undefined ? nodeConfig.webSearchEnabled : (data.webSearchEnabled !== undefined ? data.webSearchEnabled : true);
+  
+  const [model, setModel] = useState(initialModel);
+  const [apiKey, setApiKey] = useState(initialApiKey);
+  const [prompt, setPrompt] = useState(initialPrompt);
+  const [temperature, setTemperature] = useState(initialTemperature);
+  const [webSearchEnabled, setWebSearchEnabled] = useState<boolean>(initialWebSearchEnabled);
+  
   const debounceTimerRef = useRef<number | null>(null);
 
-  // Update prompt when nodeConfigs change (only if different)
+  // Update state when config changes from parent
   useEffect(() => {
+    if (nodeConfig.model !== undefined && nodeConfig.model !== model) {
+      setModel(nodeConfig.model);
+    }
+    if (nodeConfig.apiKey !== undefined && nodeConfig.apiKey !== apiKey) {
+      setApiKey(nodeConfig.apiKey);
+    }
     if (nodeConfig.prompt !== undefined && nodeConfig.prompt !== prompt) {
       setPrompt(nodeConfig.prompt);
     }
-  }, [nodeConfig.prompt, prompt]);
+    if (nodeConfig.temperature !== undefined && nodeConfig.temperature !== temperature) {
+      setTemperature(nodeConfig.temperature);
+    }
+    if (nodeConfig.webSearchEnabled !== undefined && nodeConfig.webSearchEnabled !== webSearchEnabled) {
+      setWebSearchEnabled(nodeConfig.webSearchEnabled);
+    }
+  }, [nodeConfig.model, nodeConfig.apiKey, nodeConfig.prompt, nodeConfig.temperature, nodeConfig.webSearchEnabled]);
 
+  // Handle model change
+  const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newValue = e.target.value;
+    setModel(newValue);
+    
+    // Update parent config
+    window.dispatchEvent(new CustomEvent('updateNodeConfig', {
+      detail: { 
+        nodeId: id, 
+        key: 'model', 
+        value: newValue 
+      }
+    }));
+  };
+
+  // Handle API key change
+  const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setApiKey(newValue);
+    
+    // Update parent config
+    window.dispatchEvent(new CustomEvent('updateNodeConfig', {
+      detail: { 
+        nodeId: id, 
+        key: 'apiKey', 
+        value: newValue 
+      }
+    }));
+  };
+
+  // Handle prompt change
+  const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    setPrompt(newValue);
+    
+    console.log('🔍 LLM Prompt Changed:', { nodeId: id, value: newValue });
+    
+    // Clear previous timer
+    if (debounceTimerRef.current) {
+      window.clearTimeout(debounceTimerRef.current);
+    }
+    
+    // Debounce the update to avoid too many events
+    debounceTimerRef.current = window.setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('updateNodeConfig', {
+        detail: { 
+          nodeId: id, 
+          key: 'prompt', 
+          value: newValue 
+        }
+      }));
+    }, 300);
+  };
+
+  // Handle temperature change
+  const handleTemperatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = parseFloat(e.target.value);
+    setTemperature(newValue);
+    
+    // Update parent config
+    window.dispatchEvent(new CustomEvent('updateNodeConfig', {
+      detail: { 
+        nodeId: id, 
+        key: 'temperature', 
+        value: newValue 
+      }
+    }));
+  };
+
+  // Handle web search toggle
+  const handleWebSearchToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.checked;
+    setWebSearchEnabled(newValue);
+    
+    // Update parent config
+    window.dispatchEvent(new CustomEvent('updateNodeConfig', {
+      detail: { 
+        nodeId: id, 
+        key: 'webSearchEnabled', 
+        value: newValue 
+      }
+    }));
+  };
+
+  // Handle delete node
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     window.dispatchEvent(new CustomEvent('deleteNode', {
       detail: { nodeId: id }
     }));
   };
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        window.clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   const requiresApiKey = !model.includes('Free');
 
@@ -68,7 +182,7 @@ export const LLMEngineNode: React.FC<LLMEngineNodeProps> = ({ data, id, selected
           <label className="block text-xs font-medium text-slate-700 mb-2">Model</label>
           <select 
             value={model}
-            onChange={(e) => setModel(e.target.value)}
+            onChange={handleModelChange}
             className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm bg-white text-slate-700 transition-all duration-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
           >
             <option value="Gemini 2.0 Flash (Free)">Gemini 2.0 Flash (Free)</option>
@@ -84,7 +198,7 @@ export const LLMEngineNode: React.FC<LLMEngineNodeProps> = ({ data, id, selected
             <input
               type="password"
               value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
+              onChange={handleApiKeyChange}
               placeholder="••••••••••••••••"
               className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm bg-white text-slate-700 transition-all duration-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
             />
@@ -103,26 +217,7 @@ export const LLMEngineNode: React.FC<LLMEngineNodeProps> = ({ data, id, selected
           <label className="block text-xs font-medium text-slate-700 mb-2">Prompt</label>
           <textarea
             value={prompt}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              setPrompt(newValue);
-              
-              console.log('🔍 LLM Prompt Changed:', { nodeId: id, value: newValue });
-              
-              // Debounce config updates to avoid spamming
-              if (debounceTimerRef.current) {
-                window.clearTimeout(debounceTimerRef.current);
-              }
-              debounceTimerRef.current = window.setTimeout(() => {
-                window.dispatchEvent(new CustomEvent('updateNodeConfig', {
-                  detail: { 
-                    nodeId: id, 
-                    key: 'prompt', 
-                    value: newValue 
-                  }
-                }));
-              }, 300);
-            }}
+            onChange={handlePromptChange}
             placeholder="You are a helpful AI assistant. Use the context provided to answer the user's query accurately and comprehensively."
             className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm resize-vertical font-inherit text-slate-700 bg-white transition-all duration-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 placeholder:text-slate-400"
             rows={3}
@@ -138,7 +233,7 @@ export const LLMEngineNode: React.FC<LLMEngineNodeProps> = ({ data, id, selected
               max="2"
               step="0.1"
               value={temperature}
-              onChange={(e) => setTemperature(parseFloat(e.target.value))}
+              onChange={handleTemperatureChange}
               className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
             />
             <span className="text-xs text-slate-600 min-w-[2rem]">{temperature}</span>
@@ -150,7 +245,7 @@ export const LLMEngineNode: React.FC<LLMEngineNodeProps> = ({ data, id, selected
             <input
               type="checkbox"
               checked={webSearchEnabled}
-              onChange={(e) => setWebSearchEnabled(e.target.checked)}
+              onChange={handleWebSearchToggle}
               className="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300 rounded"
             />
             Enable Web Search (Free)

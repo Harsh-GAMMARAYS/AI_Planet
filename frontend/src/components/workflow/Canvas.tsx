@@ -130,14 +130,24 @@ const CanvasInner: React.FC<CanvasProps> = ({ onChatWithStack, onNodeSelect, nod
   React.useEffect(() => {
     if (nodes.length > 0) {
       setNodes((nds) => 
-        nds.map((node) => ({
-          ...node,
-          data: {
-            ...node.data,
-            config: nodeConfigs[node.id] || {},
-            nodeConfigs: nodeConfigs
+        nds.map((node) => {
+          const nodeConfig = nodeConfigs[node.id] || {};
+          const currentConfig = node.data?.config || {};
+          
+          // Only update if the config actually changed
+          if (JSON.stringify(nodeConfig) === JSON.stringify(currentConfig)) {
+            return node; // No change needed
           }
-        }))
+          
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              config: nodeConfig,
+              nodeConfigs: nodeConfigs
+            }
+          };
+        })
       );
     }
   }, [nodeConfigs, nodes.length]);

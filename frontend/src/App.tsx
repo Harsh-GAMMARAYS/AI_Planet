@@ -319,6 +319,13 @@ function App() {
 
   const handleNodeConfigUpdate = (nodeId: string, key: string, value: any) => {
     console.log('🔍 App received node config update:', { nodeId, key, value });
+    
+    // Only update if the value actually changed
+    const currentValue = state.workflowData.nodeConfigs?.[nodeId]?.[key];
+    if (currentValue === value) {
+      return; // No change needed
+    }
+    
     const newConfigs = {
       ...state.workflowData.nodeConfigs,
       [nodeId]: {
@@ -326,7 +333,13 @@ function App() {
         [key]: value
       }
     };
-    updateState({ workflowData: { ...state.workflowData, nodeConfigs: newConfigs } });
+    
+    updateState({ 
+      workflowData: { 
+        ...state.workflowData, 
+        nodeConfigs: newConfigs 
+      } 
+    });
   };
 
 

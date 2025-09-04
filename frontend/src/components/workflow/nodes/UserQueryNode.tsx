@@ -23,28 +23,33 @@ export const UserQueryNode: React.FC<UserQueryNodeProps> = ({ data, id, selected
   const config = data.config || {};
   const nodeConfigs = data.nodeConfigs || {};
   const nodeConfig = nodeConfigs[id] || {};
-  const [query, setQuery] = useState('');
+  
+  // Initialize query from config or use empty string
+  const initialQuery = nodeConfig.currentQuery || config.currentQuery || '';
+  const [query, setQuery] = useState(initialQuery);
   const debounceTimerRef = useRef<number | null>(null);
 
-  // Update query when config changes (only if different)
+  // Update query when config changes from parent
   useEffect(() => {
     const currentQuery = nodeConfig.currentQuery || config.currentQuery;
     if (currentQuery !== undefined && currentQuery !== query) {
       setQuery(currentQuery);
     }
-  }, [nodeConfig.currentQuery, config.currentQuery, query]);
+  }, [nodeConfig.currentQuery, config.currentQuery]);
 
-  // Handle clearing the textarea properly
+  // Handle query changes
   const handleQueryChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     setQuery(newValue);
     
     console.log('🔍 User Query Changed:', { nodeId: id, value: newValue });
     
-    // Debounce config updates to avoid spamming
+    // Clear previous timer
     if (debounceTimerRef.current) {
       window.clearTimeout(debounceTimerRef.current);
     }
+    
+    // Debounce the update to avoid too many events
     debounceTimerRef.current = window.setTimeout(() => {
       window.dispatchEvent(new CustomEvent('updateNodeConfig', {
         detail: { 
@@ -56,22 +61,27 @@ export const UserQueryNode: React.FC<UserQueryNodeProps> = ({ data, id, selected
     }, 300);
   };
 
-  const handleFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-    // If the content matches the placeholder, clear it
-    const placeholder = config.placeholder || "Write your query here";
-    if (e.target.value === placeholder) {
-      setQuery('');
-    }
+  // Handle clear button
+  const handleClear = () => {
+    setQuery('');
+    window.dispatchEvent(new CustomEvent('updateNodeConfig', {
+      detail: { 
+        nodeId: id, 
+        key: 'currentQuery', 
+        value: '' 
+      }
+    }));
   };
 
+  // Handle delete node
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Trigger delete event
     window.dispatchEvent(new CustomEvent('deleteNode', {
       detail: { nodeId: id }
     }));
   };
 
+  // Cleanup timer on unmount
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) {
@@ -104,15 +114,15 @@ export const UserQueryNode: React.FC<UserQueryNodeProps> = ({ data, id, selected
             <textarea
               value={query}
               onChange={handleQueryChange}
-              onFocus={handleFocus}
               placeholder="Write your query here..."
               className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm resize-vertical font-inherit text-slate-700 bg-white transition-all duration-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 placeholder:text-slate-400"
               rows={3}
+              autoFocus={false}
             />
             {query && (
               <button 
                 className="absolute top-2 right-2 bg-slate-100 border-none rounded w-5 h-5 flex items-center justify-center cursor-pointer text-xs text-slate-500 transition-all duration-200 hover:bg-slate-200 hover:text-slate-700"
-                onClick={() => setQuery('')}
+                onClick={handleClear}
                 type="button"
               >
                 <X className="w-3 h-3" />
