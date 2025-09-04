@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: ai_planet_postgres
+    environment:
+      POSTGRES_DB: ai_planet
+      POSTGRES_USER: ai_planet_user
+      POSTGRES_PASSWORD: ai_planet_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: ai_planet_chromadb
+    environment:
+      - CHROMA_SERVER_HOST=0.0.0.0
+      - CHROMA_SERVER_HTTP_PORT=8001
+    ports:
+      - "8001:8001"
+    volumes:
+      - chromadb_data:/chroma/chroma
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  chromadb_data:

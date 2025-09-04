@@ -78,16 +78,28 @@ class WorkflowRequest(BaseModel):
     use_web_search: bool = False
     custom_prompt: Optional[str] = None
 
+class WorkflowContext(BaseModel):
+    user_query: Optional[str] = None
+    custom_prompt: Optional[str] = None
+    output_data: Optional[str] = None
+
 class ChatRequest(BaseModel):
     message: str
     use_knowledge_base: bool = True
     use_web_search: bool = False
+    workflow_context: Optional[WorkflowContext] = None
 
 @router.post("/run-workflow")
 async def run_workflow(request: WorkflowRequest):
     """
     Execute a complete AI workflow: Query -> (KnowledgeBase) -> (WebSearch) -> LLM -> Output
     """
+    print(f"🚀 Workflow Request Received:")
+    print(f"   Query: {request.user_query}")
+    print(f"   Use KB: {request.use_knowledge_base}")
+    print(f"   Use Web Search: {request.use_web_search}")
+    print(f"   Custom Prompt: {request.custom_prompt}")
+    
     result = await llm_service.process_workflow(
         user_query=request.user_query,
         use_knowledge_base=request.use_knowledge_base,
@@ -95,6 +107,7 @@ async def run_workflow(request: WorkflowRequest):
         custom_prompt=request.custom_prompt
     )
     
+    print(f"✅ Workflow Result: {result}")
     return result
 
 @router.post("/chat")
@@ -102,10 +115,29 @@ async def chat_with_stack(request: ChatRequest):
     """
     Chat interface that uses the knowledge base and optionally web search
     """
+    # Build enhanced context if workflow context is provided
+    enhanced_message = request.message
+    
+    if request.workflow_context:
+        context_parts = []
+        
+        if request.workflow_context.user_query:
+            context_parts.append(f"Original workflow query: {request.workflow_context.user_query}")
+        
+        if request.workflow_context.output_data:
+            context_parts.append(f"Previous workflow output:\n{request.workflow_context.output_data}")
+        
+        if request.workflow_context.custom_prompt:
+            context_parts.append(f"System prompt: {request.workflow_context.custom_prompt}")
+        
+        if context_parts:
+            enhanced_message = f"Context from previous workflow:\n" + "\n".join(context_parts) + f"\n\nCurrent user message: {request.message}"
+    
     result = await llm_service.process_workflow(
-        user_query=request.message,
+        user_query=enhanced_message,
         use_knowledge_base=request.use_knowledge_base,
-        use_web_search=request.use_web_search
+        use_web_search=request.use_web_search,
+        custom_prompt=request.workflow_context.custom_prompt if request.workflow_context else None
     )
     
     return {

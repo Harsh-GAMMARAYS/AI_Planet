@@ -1,0 +1,18 @@
+{
+  "name": "ai-planet",
+  "version": "1.0.0",
+  "description": "AI Workflow Platform",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && uv run uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "install:all": "cd backend && uv sync && cd ../frontend && npm install",
+    "start:db": "docker compose up -d postgres chromadb",
+    "stop:db": "docker compose down",
+    "clean": "cd frontend && rm -rf node_modules && cd ../backend && rm -rf .venv"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

@@ -1,0 +1,250 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* React Flow Controls Styling */
+.react-flow__controls {
+  background: white !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+  padding: 8px !important;
+  gap: 6px !important;
+}
+
+.react-flow__controls-button {
+  background: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  color: #374151 !important;
+  width: 48px !important;
+  height: 48px !important;
+  transition: all 0.2s !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.react-flow__controls-button:hover {
+  background: #f1f5f9 !important;
+  color: #111827 !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.react-flow__controls-button svg {
+  fill: #374151 !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.react-flow__controls-button:hover svg {
+  fill: #111827 !important;
+}
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light;
+  color: #213547;
+  background-color: #f8fafc;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: #f8fafc;
+  color: #213547;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Animation classes */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Focus styles */
+*:focus {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+/* Button styles */
+.btn {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+}
+
+.btn-primary {
+  @apply bg-emerald-500 text-white hover:bg-emerald-600 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2;
+}
+
+.btn-secondary {
+  @apply bg-slate-200 text-slate-700 hover:bg-slate-300 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2;
+}
+
+.btn-outline {
+  @apply border border-slate-300 text-slate-700 hover:bg-slate-50 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2;
+}
+
+/* Input styles */
+.input {
+  @apply bg-white border border-slate-300 text-slate-700 placeholder-slate-400 rounded-lg px-3 py-2 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2;
+}
+
+/* Card styles */
+.card {
+  @apply bg-white border border-slate-200 rounded-lg shadow-sm;
+}
+
+/* Modal styles */
+.modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm;
+}
+
+.modal-content {
+  @apply bg-white border border-slate-200 rounded-lg shadow-xl;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  color: white;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Explicit button styling to prevent black buttons */
+button {
+  background-color: transparent !important;
+  border: none !important;
+  color: inherit !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  outline: none !important;
+}
+
+button:focus {
+  outline: none !important;
+}
+
+/* Ensure no black backgrounds on buttons */
+button:not([class*="bg-"]) {
+  background-color: transparent !important;
+}
+
+/* Override any browser default button styles */
+button[type="button"],
+button[type="submit"],
+button[type="reset"] {
+  background-color: transparent !important;
+  border: none !important;
+  color: inherit !important;
+}
+
+/* Specific styling for modal close buttons */
+button[class*="close"],
+button[class*="Close"] {
+  background-color: transparent !important;
+  color: #64748b !important;
+}
+
+button[class*="close"]:hover,
+button[class*="Close"]:hover {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
