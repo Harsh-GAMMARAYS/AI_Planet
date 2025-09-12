@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import workflow, auth, workflow_storage, stacks
+from routers import workflow, auth, workflow_storage, stacks, hybrid_rag_simple
 from dotenv import load_dotenv
 from services.database import init_db
 import os
@@ -23,6 +23,7 @@ app.include_router(workflow.router)
 app.include_router(auth.router)
 app.include_router(workflow_storage.router)
 app.include_router(stacks.router)
+app.include_router(hybrid_rag_simple.router)
 
 @app.on_event("startup")
 async def startup_event():

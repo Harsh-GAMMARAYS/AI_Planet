@@ -1,0 +1,13 @@
+FastAPI Framework Overview and Components
+
+FastAPI is a modern, fast web framework for building APIs with Python 3.7+ based on standard Python type hints. It was created by Sebastian Ramirez and is built on top of Starlette for the web parts and Pydantic for the data parts. FastAPI provides automatic API documentation generation using OpenAPI and JSON Schema.
+
+The core components of FastAPI include the main application instance, routers for organizing endpoints, dependency injection system, and middleware support. The FastAPI application class serves as the central component that coordinates all other parts of the framework. Routers allow developers to organize related endpoints into separate modules, making the codebase more maintainable and scalable.
+
+FastAPI's dependency injection system enables clean separation of concerns by allowing functions to declare their dependencies explicitly. Dependencies can include database connections, authentication services, configuration objects, and other shared resources. The framework automatically resolves these dependencies and injects them into route handlers when requests are processed.
+
+The Pydantic integration in FastAPI provides automatic request validation and response serialization. When a route handler declares a Pydantic model as a parameter, FastAPI automatically validates the incoming request data against the model schema. Similarly, when a route handler returns a Pydantic model, FastAPI serializes it to JSON for the HTTP response.
+
+FastAPI supports various HTTP methods including GET, POST, PUT, DELETE, PATCH, and OPTIONS. Each method can be associated with specific route handlers that process incoming requests. Route handlers can accept path parameters, query parameters, request bodies, headers, and cookies as input. The framework uses Python type hints to automatically validate and convert these inputs to the appropriate data types.
+
+Middleware in FastAPI provides a way to process requests and responses at the application level. Common middleware includes CORS handling, authentication, logging, and error handling. Middleware components can modify requests before they reach route handlers and modify responses before they are sent to clients. The order of middleware execution follows a stack-like pattern where the first middleware added is the outermost layer.
